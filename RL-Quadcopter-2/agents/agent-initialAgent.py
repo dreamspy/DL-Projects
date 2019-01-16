@@ -214,7 +214,7 @@ class OUNoise:
 
 class DDPG():
     """Reinforcement Learning agent that learns using DDPG."""
-    def __init__(self, task, mu = 0, theta = 0.15, sigma = 0.2, gamma = 0.99, tau = 0.01):
+    def __init__(self, task):
         self.task = task
         self.state_size = task.state_size
         self.action_size = task.action_size
@@ -234,12 +234,9 @@ class DDPG():
         self.actor_target.model.set_weights(self.actor_local.model.get_weights())
 
         # Noise process
-        #self.exploration_mu = 0
-        #self.exploration_theta = 0.15
-        #self.exploration_sigma = 0.2
-        self.exploration_mu = mu
-        self.exploration_theta = theta
-        self.exploration_sigma = sigma
+        self.exploration_mu = 0
+        self.exploration_theta = 0.15
+        self.exploration_sigma = 0.2
         self.noise = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
 
         # Replay memory
@@ -248,16 +245,11 @@ class DDPG():
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size)
 
         # Algorithm parameters
-        #self.gamma = 0.99  # discount factor
-        #self.tau = 0.01  # for soft update of target parameters
-        self.gamma = gamma  # discount factor
-        self.tau = tau  # for soft update of target parameters
+        self.gamma = 0.99  # discount factor
+        self.tau = 0.01  # for soft update of target parameters
 
         self.reset_episode()
         self.best_score = - np.inf
-        
-        # Hyperparameters
-        
 
     def reset_episode(self):
         self.noise.reset()

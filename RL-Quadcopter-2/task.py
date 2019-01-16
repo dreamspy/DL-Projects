@@ -4,7 +4,7 @@ from physics_sim import PhysicsSim
 class Task():
     """Task (environment) that defines the goal and provides feedback to the agent."""
     def __init__(self, init_pose=None, init_velocities=None, 
-        init_angle_velocities=None, runtime=5., target_pos=None):
+        init_angle_velocities=None, runtime=5., target_pos=None, addAccell2Reward = False):
         """Initialize a Task object.
         Params
         ======
@@ -22,13 +22,18 @@ class Task():
         self.action_low = 0
         self.action_high = 900
         self.action_size = 4
+        
+        self.addAccell2Reward = addAccell2Reward
 
         # Goal
         self.target_pos = target_pos if target_pos is not None else np.array([0., 0., 10.]) 
+                
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
         reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        acc = np.linalg.norm(self.sim.linear_accel)
+        if self.addAccell2Reward : reward -= 0.03 * acc
         return reward
 
     def step(self, rotor_speeds):
@@ -40,6 +45,8 @@ class Task():
             reward += self.get_reward() 
             pose_all.append(self.sim.pose)
         next_state = np.concatenate(pose_all)
+        
+        #print("linear accelleration:", self.sim.linear_accel)
         return next_state, reward, done
 
     def reset(self):
